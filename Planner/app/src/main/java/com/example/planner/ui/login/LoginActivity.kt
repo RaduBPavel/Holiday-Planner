@@ -1,6 +1,7 @@
 package com.example.planner.ui.login
 
 import android.app.Activity
+import android.content.Intent
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -15,6 +16,7 @@ import android.widget.Toast
 import com.example.planner.databinding.ActivityLoginBinding
 
 import com.example.planner.R
+import com.example.planner.ui.signup.SignUpActivity
 
 class LoginActivity : AppCompatActivity() {
 
@@ -29,8 +31,9 @@ class LoginActivity : AppCompatActivity() {
 
         val username = binding.username
         val password = binding.password
-        val login = binding.login
+        val login = binding.loginButton
         val loading = binding.loading
+        val signup = binding.signupButton
 
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
             .get(LoginViewModel::class.java)
@@ -96,6 +99,10 @@ class LoginActivity : AppCompatActivity() {
                 loginViewModel.login(username.text.toString(), password.text.toString())
             }
         }
+
+        signup!!.setOnClickListener {
+            redirectToSignUp()
+        }
     }
 
     private fun updateUiWithUser(model: LoggedInUserView) {
@@ -111,6 +118,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun showLoginFailed(@StringRes errorString: Int) {
         Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun redirectToSignUp() {
+        val intent = Intent(this, SignUpActivity::class.java)
+        startActivity(intent)
     }
 }
 
