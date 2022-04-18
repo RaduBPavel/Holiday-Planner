@@ -21,4 +21,7 @@
     <string name="signup_message">Don\'t have an account? Sign up here!</string>
     <string name="prompt_confirm_password">Confirm password</string>
     <string name="confirm_signup_prompt">Register account</string>
+
+    <string name="dialog_ok">Confirm</string>
+    <string name="dialog_cancel">Cancel</string>
 </resources>
