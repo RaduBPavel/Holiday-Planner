@@ -36,6 +36,5 @@ class LoginActivity : AppCompatActivity() {
     private fun redirectToSignUp() {
         val intent = Intent(this, SignUpActivity::class.java)
         startActivity(intent)
-        finish()
     }
 }

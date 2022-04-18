@@ -2,6 +2,7 @@ package com.example.planner.ui.authentication
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.MutableBoolean
 import android.widget.EditText
 import android.widget.Toast
@@ -17,6 +18,7 @@ class SignUpActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignUpBinding
     private lateinit var auth: FirebaseAuth
+    private val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +37,7 @@ class SignUpActivity : AppCompatActivity() {
         val validPassword: MutableLiveData<Boolean> = MutableLiveData(false)
         val validConfirmedPassword: MutableLiveData<Boolean> = MutableLiveData(false)
 
+        // Validates input for text fields
         email.addTextChangedListener(EmailTextWatcher(email, validEmail))
         password.addTextChangedListener(PasswordTextWatcher(password, validPassword))
         confirmedPassword.addTextChangedListener(
@@ -46,16 +49,14 @@ class SignUpActivity : AppCompatActivity() {
         )
 
         validConfirmedPassword.observe(this, Observer {
-            if (checkValidInput(
-                    validEmail.value!!,
-                    validPassword.value!!,
-                    validConfirmedPassword.value!!
-                )
-            ) {
-                register.isEnabled = true
-            }
+            register.isEnabled = checkValidInput(
+                validEmail.value!!,
+                validPassword.value!!,
+                validConfirmedPassword.value!!
+            )
         })
 
+        // Register entry point
         register.setOnClickListener {
             registerUser(email, password)
         }
@@ -85,6 +86,7 @@ class SignUpActivity : AppCompatActivity() {
                     redirectToLogin()
                 } else {
                     // If sign in fails, display a message to the user.
+                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
                     Toast.makeText(
                         applicationContext, "Authentication failed.",
                         Toast.LENGTH_SHORT
@@ -99,6 +101,5 @@ class SignUpActivity : AppCompatActivity() {
     private fun redirectToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
-        finish()
     }
 }
