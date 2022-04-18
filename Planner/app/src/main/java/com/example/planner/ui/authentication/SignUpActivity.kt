@@ -2,10 +2,12 @@ package com.example.planner.ui.authentication
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.TextUtils
+import android.util.MutableBoolean
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.example.planner.databinding.ActivitySignUpBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -28,42 +30,46 @@ class SignUpActivity : AppCompatActivity() {
         val confirmedPassword = binding.confirmPasswordSignup
         val register = binding.registerButton
 
+        // Used for input validation
+        val validEmail: MutableLiveData<Boolean> = MutableLiveData(false)
+        val validPassword: MutableLiveData<Boolean> = MutableLiveData(false)
+        val validConfirmedPassword: MutableLiveData<Boolean> = MutableLiveData(false)
+
+        email.addTextChangedListener(EmailTextWatcher(email, validEmail))
+        password.addTextChangedListener(PasswordTextWatcher(password, validPassword))
+        confirmedPassword.addTextChangedListener(
+            ConfirmedPasswordTextWatcher(
+                confirmedPassword,
+                password,
+                validConfirmedPassword
+            )
+        )
+
+        validConfirmedPassword.observe(this, Observer {
+            if (checkValidInput(
+                    validEmail.value!!,
+                    validPassword.value!!,
+                    validConfirmedPassword.value!!
+                )
+            ) {
+                register.isEnabled = true
+            }
+        })
 
         register.setOnClickListener {
-            if (!checkCompletedFields(email, password, confirmedPassword)) {
-                return@setOnClickListener
-            }
-
-            if (!checkMatchingPasswords(password, confirmedPassword)) {
-                return@setOnClickListener
-            }
-
             registerUser(email, password)
         }
     }
 
     /**
-     * Checks if all the fields are completed.
+     * Checks if all the fields have been validated.
      */
-    private fun checkCompletedFields(
-        email: EditText, password: EditText, confirmedPassword: EditText
-    ) = TextUtils.isEmpty(email.text.toString()) and
-            TextUtils.isEmpty(password.text.toString()) and
-            TextUtils.isEmpty(confirmedPassword.text.toString())
-
-    /**
-     * Checks if the passwords match. If not, alerts the user.
-     */
-    private fun checkMatchingPasswords(password: EditText, confirmedPassword: EditText): Boolean {
-        val passwordInput = password.text.toString()
-        val confirmedPasswordInput = confirmedPassword.text.toString()
-
-        if (passwordInput != confirmedPasswordInput) {
-            Toast.makeText(applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
-        }
-
-        return passwordInput == confirmedPasswordInput
-    }
+    private fun checkValidInput(
+        validEmail: Boolean,
+        validPassword: Boolean,
+        validConfirmedPassword: Boolean
+    ) =
+        validEmail and validPassword and validConfirmedPassword
 
     /**
      * Registers the user. If the operation fails, alerts the user.
@@ -76,12 +82,13 @@ class SignUpActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
-                    println("ceva muie")
                     redirectToLogin()
                 } else {
                     // If sign in fails, display a message to the user.
-                    Toast.makeText(applicationContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
     }
