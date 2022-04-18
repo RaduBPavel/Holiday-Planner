@@ -3,7 +3,6 @@ package com.example.planner.ui.authentication
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
-import android.util.MutableBoolean
 import android.util.Patterns
 import android.widget.EditText
 import androidx.lifecycle.MutableLiveData
@@ -11,7 +10,7 @@ import java.util.regex.Pattern
 
 class EmailTextWatcher(
     private val email: EditText,
-    private var validEmail: MutableLiveData<Boolean>
+    private val validEmail: MutableLiveData<Boolean>
 ) : TextWatcher {
     override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
     }
@@ -20,21 +19,23 @@ class EmailTextWatcher(
     }
 
     override fun afterTextChanged(p0: Editable?) {
-        val text = p0.toString()
-        if (TextUtils.isEmpty(text) or
-            !Patterns.EMAIL_ADDRESS.matcher(text).matches()
+        val emailInput = p0.toString()
+        if (TextUtils.isEmpty(emailInput) or
+            !Patterns.EMAIL_ADDRESS.matcher(emailInput).matches()
         ) {
             email.error = "Invalid email"
             validEmail.value = false
-        } else {
-            validEmail.value = true
+            return
         }
+
+        validEmail.value = true
     }
 }
 
 class PasswordTextWatcher(
     private val password: EditText,
-    private var validPassword: MutableLiveData<Boolean>
+    private val validPassword: MutableLiveData<Boolean>,
+    private val errorMessage: String
 ) :
     TextWatcher {
     private val stringPattern by lazy { "(/^.{3,}\$/)" }
@@ -47,20 +48,21 @@ class PasswordTextWatcher(
     }
 
     override fun afterTextChanged(p0: Editable?) {
-        val text = p0.toString()
-        if (TextUtils.isEmpty(text) or pattern.matcher(text).matches()) {
-            password.error = "Password not secure enough"
+        val passwordInput = p0.toString()
+        if (TextUtils.isEmpty(passwordInput) or pattern.matcher(passwordInput).matches()) {
+            password.error = errorMessage
             validPassword.value = false
-        } else {
-            validPassword.value = true
+            return
         }
+
+        validPassword.value = true
     }
 }
 
 class ConfirmedPasswordTextWatcher(
     private val confirmedPassword: EditText,
     private val password: EditText,
-    private var validConfirmedPassword: MutableLiveData<Boolean>
+    private val validConfirmedPassword: MutableLiveData<Boolean>
 ) : TextWatcher {
 
     override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -79,8 +81,9 @@ class ConfirmedPasswordTextWatcher(
         ) {
             confirmedPassword.error = "Passwords do not match"
             validConfirmedPassword.value = false
-        } else {
-            validConfirmedPassword.value = true
+            return
         }
+
+        validConfirmedPassword.value = true
     }
 }

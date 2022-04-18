@@ -3,7 +3,6 @@ package com.example.planner.ui.authentication
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.util.MutableBoolean
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +17,7 @@ class SignUpActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignUpBinding
     private lateinit var auth: FirebaseAuth
-    private val TAG = "MainActivity"
+    private val TAG = "SignIn Activity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +38,13 @@ class SignUpActivity : AppCompatActivity() {
 
         // Validates input for text fields
         email.addTextChangedListener(EmailTextWatcher(email, validEmail))
-        password.addTextChangedListener(PasswordTextWatcher(password, validPassword))
+        password.addTextChangedListener(
+            PasswordTextWatcher(
+                password,
+                validPassword,
+                "Password not secure enough"
+            )
+        )
         confirmedPassword.addTextChangedListener(
             ConfirmedPasswordTextWatcher(
                 confirmedPassword,
