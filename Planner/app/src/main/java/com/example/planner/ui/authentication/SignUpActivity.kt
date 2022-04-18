@@ -31,6 +31,11 @@ class SignUpActivity : AppCompatActivity() {
         val confirmedPassword = binding.confirmPasswordSignup
         val register = binding.registerButton
 
+        // Back button for navigation
+        val actionbar = supportActionBar
+        actionbar!!.setDisplayHomeAsUpEnabled(true)
+        actionbar.setDisplayHomeAsUpEnabled(true)
+
         // Used for input validation
         val validEmail: MutableLiveData<Boolean> = MutableLiveData(false)
         val validPassword: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -106,5 +111,10 @@ class SignUpActivity : AppCompatActivity() {
     private fun redirectToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }
