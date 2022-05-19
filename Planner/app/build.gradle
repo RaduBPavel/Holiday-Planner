@@ -54,7 +54,12 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // Firebase dependencies
-    implementation platform('com.google.firebase:firebase-bom:29.3.1')
+    implementation platform('com.google.firebase:firebase-bom:30.0.1')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+
+    // REST dependencies
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "com.squareup.retrofit2:converter-scalars:2.9.0"
 }
