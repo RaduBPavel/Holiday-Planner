@@ -25,6 +25,7 @@ class MainMenu : AppCompatActivity() {
 
     private lateinit var binding: ActivityMenuBinding
     private lateinit var auth: FirebaseAuth
+    private var fragmentOn: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,9 +72,9 @@ class MainMenu : AppCompatActivity() {
         updateItems(recyclerView)
 
         // Creates the fragment on click
-        // create fragment instance
         val fragment : LocationFragment = LocationFragment.newInstance()
-
+        fragmentOn = true
+        
         // for passing data to fragment
         val bundle = Bundle()
         bundle.putString("item_title", locations[0].name)
@@ -89,6 +90,20 @@ class MainMenu : AppCompatActivity() {
                 .beginTransaction()
                 .add(R.id.fragment_container, fragment, "fragment_name")
                 .commit()
+        }
+
+        binding.root.setOnClickListener{ view ->
+            if (fragmentOn && view.id != R.id.fragment_container) {
+                supportFragmentManager
+                    .beginTransaction()
+                    .remove(fragment)
+                    .commit()
+
+                supportFragmentManager
+                    .popBackStack()
+
+                fragmentOn = false
+            }
         }
     }
 
