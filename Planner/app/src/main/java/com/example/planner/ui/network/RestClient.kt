@@ -9,10 +9,10 @@ import java.net.URL
 private const val apiKey = "be079e43351a4eb1b58213718221704"
 private const val baseUrl = "http://api.weatherapi.com/v1"
 
-class RestClient {
+object RestClient {
     var client = OkHttpClient()
 
-    fun getData(cityName: String): WeatherApiResponse? {
+    suspend fun getData(cityName: String): WeatherApiResponse? {
         val url = URL(baseUrl)
 
         val request = Request.Builder()

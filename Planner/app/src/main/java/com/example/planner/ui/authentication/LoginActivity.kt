@@ -14,21 +14,27 @@ import com.example.planner.ui.menu.MainMenu
 import com.example.planner.ui.network.RestClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private val TAG = "LogIn Activity"
+    private val jobList = mutableListOf<Job>()
 
     companion object {
         val locations = mutableListOf<Location>()
     }
 
-    private val locationNames = listOf("Bucharest", "Athens", "Amsterdam", "Los Angeles", "Shanghai")
+    private val locationNames =
+        listOf("Bucharest", "Athens", "Amsterdam", "Los Angeles", "Shanghai")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,13 +78,23 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Start the background thread for collecting data
-        GlobalScope.launch {
-            val client = RestClient()
-            for (name in locationNames) {
-                val newLocation = Location(name)
-                locations.add(Location(name))
+        val db = Firebase.firestore
+        db.collection("cities")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    locations.add(Location(document.getString("name")!!))
+                }
+
+                locations.sortBy { it.name }
+                for (location in locations) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        location.updateValues((RestClient))
+                    }
+                }
             }
-        }
+
+//        locationNames.forEach { locations.add(Location(it)) }
     }
 
     /**

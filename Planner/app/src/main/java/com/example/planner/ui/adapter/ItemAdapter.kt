@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.planner.R
@@ -15,13 +16,14 @@ class ItemAdapter(private val context: Context, private val dataset: List<Locati
     class ItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         val title: TextView = view.findViewById(R.id.item_title)
         val temp: TextView = view.findViewById(R.id.item_temp)
-        val air_temp: TextView = view.findViewById(R.id.item_air_temp)
+//        val airTemp: TextView = view.findViewById(R.id.item_air_temp)
         val humidity: TextView = view.findViewById(R.id.item_humidity)
+        val image: ImageView = view.findViewById(R.id.city_image)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val adapterLayout = LayoutInflater.from(parent.context)
-            .inflate(R.layout.list_item, parent, false)
+            .inflate(R.layout.new_list_item, parent, false)
 
         return ItemViewHolder(adapterLayout)
     }
@@ -30,8 +32,13 @@ class ItemAdapter(private val context: Context, private val dataset: List<Locati
         val item = dataset[position]
         holder.title.text = item.name
         holder.temp.text = item.temperature.toString()
-        holder.air_temp.text = item.airTemperature.toString()
+//        holder.airTemp.text = item.airTemperature.toString()
         holder.humidity.text = item.humidity.toString()
+        if (item.isDay) {
+            holder.image.setImageResource(R.drawable.day_image)
+        } else {
+            holder.image.setImageResource(R.drawable.night_image)
+        }
     }
 
     override fun getItemCount() = dataset.size

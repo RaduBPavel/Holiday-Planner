@@ -37,9 +37,6 @@ class MainMenu : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var viewModel: LocationViewModel
 
-    // Values used for REST communication
-    val client = RestClient()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -82,7 +79,7 @@ class MainMenu : AppCompatActivity() {
         recyclerView.adapter = ItemAdapter(this, LoginActivity.locations)
 
         lifecycleScope.launch(Dispatchers.IO) {
-            client.getData("Athens")
+            RestClient.getData("Athens")
         }
     }
 
@@ -103,3 +100,4 @@ class MainMenu : AppCompatActivity() {
         startActivity(intent)
     }
 }
+

@@ -1,22 +1,26 @@
 package com.example.planner.ui.locations
 
+import com.example.planner.ui.network.RestClient
 import com.example.planner.ui.network.WeatherApiResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class Location(
     val name: String,
 ) {
-    var temperature: Int = 0
-    var airTemperature: Int = 0
+    var temperature: Double = 0.0
+    var airTemperature: Double = 0.0
     var humidity: Int = 0
     var isDay: Boolean = false
 
-    fun updateValues(weatherApiResponse: WeatherApiResponse) {
-        temperature = Integer.parseInt(weatherApiResponse.current["temp_c"].toString())
-        airTemperature = Integer.parseInt(weatherApiResponse.current["feelslike_c"].toString())
+    suspend fun updateValues(restClient: RestClient) {
+        val weatherApiResponse = restClient.getData(name)
+        temperature = weatherApiResponse!!.current["temp_c"].toString().toDouble()
+        airTemperature = weatherApiResponse.current["feelslike_c"].toString().toDouble()
         humidity = Integer.parseInt(weatherApiResponse.current["humidity"].toString())
         isDay = Integer.parseInt(weatherApiResponse.current["is_day"].toString()) == 1
     }
+
 }
