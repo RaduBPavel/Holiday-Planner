@@ -9,16 +9,26 @@ import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.planner.databinding.ActivityLoginBinding
+import com.example.planner.ui.locations.Location
 import com.example.planner.ui.menu.MainMenu
+import com.example.planner.ui.network.RestClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private val TAG = "LogIn Activity"
+
+    companion object {
+        val locations = mutableListOf<Location>()
+    }
+
+    private val locationNames = listOf("Bucharest", "Athens", "Amsterdam", "Los Angeles", "Shanghai")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +69,15 @@ class LoginActivity : AppCompatActivity() {
 
         login.setOnClickListener {
             loginUser(email, password)
+        }
+
+        // Start the background thread for collecting data
+        GlobalScope.launch {
+            val client = RestClient()
+            for (name in locationNames) {
+                val newLocation = Location(name)
+                locations.add(Location(name))
+            }
         }
     }
 
