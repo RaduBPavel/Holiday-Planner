@@ -16,7 +16,6 @@ class ItemAdapter(private val context: Context, private val dataset: List<Locati
     class ItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         val title: TextView = view.findViewById(R.id.item_title)
         val temp: TextView = view.findViewById(R.id.item_temp)
-//        val airTemp: TextView = view.findViewById(R.id.item_air_temp)
         val humidity: TextView = view.findViewById(R.id.item_humidity)
         val image: ImageView = view.findViewById(R.id.city_image)
     }
@@ -32,13 +31,16 @@ class ItemAdapter(private val context: Context, private val dataset: List<Locati
         val item = dataset[position]
         holder.title.text = item.name
         holder.temp.text = item.temperature.toString()
-//        holder.airTemp.text = item.airTemperature.toString()
         holder.humidity.text = item.humidity.toString()
         if (item.isDay) {
             holder.image.setImageResource(R.drawable.day_image)
         } else {
             holder.image.setImageResource(R.drawable.night_image)
         }
+    }
+
+    fun modifyItem(position: Int) {
+        notifyItemChanged(position)
     }
 
     override fun getItemCount() = dataset.size

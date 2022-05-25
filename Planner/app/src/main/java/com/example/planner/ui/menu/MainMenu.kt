@@ -1,41 +1,30 @@
 package com.example.planner.ui.menu
 
-import android.content.ContentValues
 import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.planner.R
 import com.example.planner.databinding.ActivityMenuBinding
-import com.example.planner.databinding.ActivitySignUpBinding
 import com.example.planner.ui.adapter.ItemAdapter
 import com.example.planner.ui.authentication.LoginActivity
-import com.example.planner.ui.locations.*
+import com.example.planner.ui.authentication.LoginActivity.Companion.locations
+import com.example.planner.ui.locations.LocationFragment
 import com.example.planner.ui.network.RestClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
-import okhttp3.OkHttpClient
-import java.lang.Thread.sleep
-import kotlin.math.log
 
 class MainMenu : AppCompatActivity() {
 
     private lateinit var binding: ActivityMenuBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var viewModel: LocationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +36,7 @@ class MainMenu : AppCompatActivity() {
         val signOut = binding.signOutButton
 
         val user = auth.currentUser
-//        checkIfLoggedIn(user)
+        checkIfLoggedIn(user)
 
         // Binds the sign out button
         signOut.setOnClickListener {
@@ -75,11 +64,31 @@ class MainMenu : AppCompatActivity() {
         }
 
 
+        // Instantiates the recycler view and updates periodically
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.adapter = ItemAdapter(this, LoginActivity.locations)
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            RestClient.getData("Athens")
+        updateItems(recyclerView)
+
+        // Creates the fragment on click
+        // create fragment instance
+        val fragment : LocationFragment = LocationFragment.newInstance()
+
+        // for passing data to fragment
+        val bundle = Bundle()
+        bundle.putString("item_title", locations[0].name)
+        bundle.putDouble("item_temp", locations[0].temperature)
+        bundle.putInt("item_humidity", locations[0].humidity)
+        bundle.putBoolean("is_day", locations[0].isDay)
+
+        fragment.arguments = bundle
+
+        // check is important to prevent activity from attaching the fragment if already its attached
+        if (savedInstanceState == null) {
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.fragment_container, fragment, "fragment_name")
+                .commit()
         }
     }
 
@@ -98,6 +107,28 @@ class MainMenu : AppCompatActivity() {
     private fun redirectToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
+    }
+
+    /**
+     * Periodically make calls to the Weather API to get changes
+     */
+    private fun updateItems(recyclerView: RecyclerView) {
+        val layoutManager: LinearLayoutManager = recyclerView.layoutManager as LinearLayoutManager
+
+        lifecycleScope.launch {
+            while (true) {
+                delay(5000)
+                for (location in locations) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        location.updateValues((RestClient))
+                    }
+                }
+                for (index in layoutManager.findFirstVisibleItemPosition()..layoutManager.findLastCompletelyVisibleItemPosition()) {
+                    val adapter = recyclerView.adapter as ItemAdapter
+                    adapter.modifyItem(index)
+                }
+            }
+        }
     }
 }
 

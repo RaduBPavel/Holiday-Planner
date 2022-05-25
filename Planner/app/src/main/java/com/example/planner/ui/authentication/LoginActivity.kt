@@ -77,24 +77,7 @@ class LoginActivity : AppCompatActivity() {
             loginUser(email, password)
         }
 
-        // Start the background thread for collecting data
-        val db = Firebase.firestore
-        db.collection("cities")
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    locations.add(Location(document.getString("name")!!))
-                }
-
-                locations.sortBy { it.name }
-                for (location in locations) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        location.updateValues((RestClient))
-                    }
-                }
-            }
-
-//        locationNames.forEach { locations.add(Location(it)) }
+        collectInitialData()
     }
 
     /**
@@ -142,6 +125,28 @@ class LoginActivity : AppCompatActivity() {
                         baseContext, "Authentication failed.",
                         Toast.LENGTH_SHORT
                     ).show()
+                }
+            }
+    }
+
+    /**
+     * Collects initial city data
+     */
+    private fun collectInitialData() {
+        // Start the background thread for collecting data
+        val db = Firebase.firestore
+        db.collection("cities")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    locations.add(Location(document.getString("name")!!))
+                }
+
+                locations.sortBy { it.name }
+                for (location in locations) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        location.updateValues((RestClient))
+                    }
                 }
             }
     }
