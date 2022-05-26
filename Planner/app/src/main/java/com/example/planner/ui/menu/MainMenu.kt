@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.planner.R
 import com.example.planner.databinding.ActivityMenuBinding
 import com.example.planner.ui.adapter.ItemAdapter
+import com.example.planner.ui.adapter.onItemClick
 import com.example.planner.ui.authentication.LoginActivity
 import com.example.planner.ui.authentication.LoginActivity.Companion.locations
 import com.example.planner.ui.locations.LocationFragment
@@ -25,7 +26,7 @@ class MainMenu : AppCompatActivity() {
 
     private lateinit var binding: ActivityMenuBinding
     private lateinit var auth: FirebaseAuth
-    private var fragmentOn: Boolean = true
+    private var fragmentOn: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,25 +74,26 @@ class MainMenu : AppCompatActivity() {
 
         // Creates the fragment on click
         val fragment : LocationFragment = LocationFragment.newInstance()
-        fragmentOn = true
-        
-        // for passing data to fragment
-        val bundle = Bundle()
-        bundle.putString("item_title", locations[0].name)
-        bundle.putDouble("item_temp", locations[0].temperature)
-        bundle.putInt("item_humidity", locations[0].humidity)
-        bundle.putBoolean("is_day", locations[0].isDay)
+        recyclerView.onItemClick { _, position, _ ->
+            // for passing data to fragment
+            val bundle = Bundle()
+            bundle.putString("item_title", locations[position].name)
+            bundle.putDouble("item_temp", locations[position].temperature)
+            bundle.putInt("item_humidity", locations[position].humidity)
+            bundle.putBoolean("is_day", locations[position].isDay)
 
-        fragment.arguments = bundle
+            fragment.arguments = bundle
+            if (!fragmentOn && savedInstanceState == null) {
+                supportFragmentManager
+                    .beginTransaction()
+                    .add(R.id.fragment_container, fragment, "fragment_name")
+                    .commit()
 
-        // check is important to prevent activity from attaching the fragment if already its attached
-        if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.fragment_container, fragment, "fragment_name")
-                .commit()
+                fragmentOn = true
+            }
         }
 
+        // Removes the fragment on click outside of it
         binding.root.setOnClickListener{ view ->
             if (fragmentOn && view.id != R.id.fragment_container) {
                 supportFragmentManager

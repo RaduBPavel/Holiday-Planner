@@ -4,11 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.example.planner.R
 
 class LocationFragment : Fragment() {
@@ -26,13 +24,13 @@ class LocationFragment : Fragment() {
         text.text = requireArguments().get("item_title").toString()
 
         val temp: TextView = view.findViewById(R.id.item_temp)
-        temp.text = requireArguments().get("item_temp").toString()
+        temp.text = "Temperature: " + requireArguments().get("item_temp").toString()
 
         val humidity: TextView = view.findViewById(R.id.item_humidity)
-        humidity.text = requireArguments().get("item_humidity").toString()
+        humidity.text = "Humidity: " + requireArguments().get("item_humidity").toString()
 
         val image: ImageView = view.findViewById(R.id.city_image)
-        if (requireArguments().get("is_day") == 0) {
+        if (requireArguments().get("is_day") == true) {
             image.setImageResource(R.drawable.day_image)
         } else {
             image.setImageResource(R.drawable.night_image)

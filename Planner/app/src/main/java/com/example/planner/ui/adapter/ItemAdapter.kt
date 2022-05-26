@@ -30,8 +30,8 @@ class ItemAdapter(private val context: Context, private val dataset: List<Locati
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = dataset[position]
         holder.title.text = item.name
-        holder.temp.text = item.temperature.toString()
-        holder.humidity.text = item.humidity.toString()
+        holder.temp.text = "Temperature: " + item.temperature.toString()
+        holder.humidity.text = "Humidity: " + item.humidity.toString()
         if (item.isDay) {
             holder.image.setImageResource(R.drawable.day_image)
         } else {
