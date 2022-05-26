@@ -13,7 +13,7 @@ import com.example.planner.ui.locations.Location
 class ItemAdapter(private val context: Context, private val dataset: List<Location>)
     : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
-    class ItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title: TextView = view.findViewById(R.id.item_title)
         val temp: TextView = view.findViewById(R.id.item_temp)
         val humidity: TextView = view.findViewById(R.id.item_humidity)
@@ -30,7 +30,7 @@ class ItemAdapter(private val context: Context, private val dataset: List<Locati
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = dataset[position]
         holder.title.text = item.name
-        holder.temp.text = "Temperature: " + item.temperature.toString()
+        holder.temp.text = "Temperature (C): " + item.temperature.toString()
         holder.humidity.text = "Humidity: " + item.humidity.toString()
         if (item.isDay) {
             holder.image.setImageResource(R.drawable.day_image)

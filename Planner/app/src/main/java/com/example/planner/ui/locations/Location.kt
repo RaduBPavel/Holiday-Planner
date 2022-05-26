@@ -14,6 +14,7 @@ data class Location(
     var airTemperature: Double = 0.0
     var humidity: Int = 0
     var isDay: Boolean = false
+    var windSpeed: Double = 0.0
 
     suspend fun updateValues(restClient: RestClient) {
         val weatherApiResponse = restClient.getData(name)
@@ -21,6 +22,7 @@ data class Location(
         airTemperature = weatherApiResponse.current["feelslike_c"].toString().toDouble()
         humidity = Integer.parseInt(weatherApiResponse.current["humidity"].toString())
         isDay = Integer.parseInt(weatherApiResponse.current["is_day"].toString()) == 1
+        windSpeed = weatherApiResponse.current["wind_kph"].toString().toDouble()
     }
 
 }

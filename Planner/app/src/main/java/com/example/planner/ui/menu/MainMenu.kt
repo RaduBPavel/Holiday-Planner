@@ -81,6 +81,8 @@ class MainMenu : AppCompatActivity() {
             bundle.putDouble("item_temp", locations[position].temperature)
             bundle.putInt("item_humidity", locations[position].humidity)
             bundle.putBoolean("is_day", locations[position].isDay)
+            bundle.putDouble("item_air_temp", locations[position].airTemperature)
+            bundle.putDouble("item_wind", locations[position].windSpeed)
 
             fragment.arguments = bundle
             if (!fragmentOn && savedInstanceState == null) {

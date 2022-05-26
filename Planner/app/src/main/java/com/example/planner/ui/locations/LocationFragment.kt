@@ -24,10 +24,16 @@ class LocationFragment : Fragment() {
         text.text = requireArguments().get("item_title").toString()
 
         val temp: TextView = view.findViewById(R.id.item_temp)
-        temp.text = "Temperature: " + requireArguments().get("item_temp").toString()
+        temp.text = "Temperature (C): " + requireArguments().get("item_temp").toString()
 
         val humidity: TextView = view.findViewById(R.id.item_humidity)
         humidity.text = "Humidity: " + requireArguments().get("item_humidity").toString()
+
+        val airTemp: TextView = view.findViewById(R.id.item_air_temp)
+        airTemp.text = "Air temp (C): " + requireArguments().get("item_air_temp").toString()
+
+        val wind: TextView = view.findViewById(R.id.item_wind)
+        wind.text = "Wind (km/h): " + requireArguments().get("item_wind").toString()
 
         val image: ImageView = view.findViewById(R.id.city_image)
         if (requireArguments().get("is_day") == true) {
