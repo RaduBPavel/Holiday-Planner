@@ -1,10 +1,10 @@
 package com.example.planner.ui.menu
 
-import android.content.DialogInterface
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.content.*
+import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +15,7 @@ import com.example.planner.ui.adapter.onItemClick
 import com.example.planner.ui.authentication.LoginActivity
 import com.example.planner.ui.authentication.LoginActivity.Companion.locations
 import com.example.planner.ui.locations.LocationFragment
+import com.example.planner.ui.network.NetworkConnectivityReceiver
 import com.example.planner.ui.network.RestClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -22,10 +23,12 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
 
+
 class MainMenu : AppCompatActivity() {
 
     private lateinit var binding: ActivityMenuBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var broadcastReceiver: BroadcastReceiver
     private var fragmentOn: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +42,10 @@ class MainMenu : AppCompatActivity() {
 
         val user = auth.currentUser
         checkIfLoggedIn(user)
+
+        // Binds the broadcast receiver
+        broadcastReceiver = NetworkConnectivityReceiver()
+        broadcastIntent()
 
         // Binds the sign out button
         signOut.setOnClickListener {
@@ -137,17 +144,36 @@ class MainMenu : AppCompatActivity() {
         lifecycleScope.launch {
             while (true) {
                 delay(5000)
-                for (location in locations) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        location.updateValues((RestClient))
+                if (isNetworkAvailable()) {
+                    for (location in locations) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            location.updateValues((RestClient))
+                        }
                     }
-                }
-                for (index in layoutManager.findFirstVisibleItemPosition()..layoutManager.findLastCompletelyVisibleItemPosition()) {
-                    val adapter = recyclerView.adapter as ItemAdapter
-                    adapter.modifyItem(index)
+                    for (index in layoutManager.findFirstVisibleItemPosition()..layoutManager.findLastCompletelyVisibleItemPosition()) {
+                        val adapter = recyclerView.adapter as ItemAdapter
+                        adapter.modifyItem(index)
+                    }
                 }
             }
         }
+    }
+
+    // Used to bind and unbind the broadcast receiver
+    private fun broadcastIntent() {
+        registerReceiver(broadcastReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(broadcastReceiver)
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
 }
 

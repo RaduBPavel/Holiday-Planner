@@ -1,6 +1,9 @@
 package com.example.planner.ui.authentication
 
+import android.content.BroadcastReceiver
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
@@ -11,6 +14,7 @@ import androidx.lifecycle.Observer
 import com.example.planner.databinding.ActivityLoginBinding
 import com.example.planner.ui.locations.Location
 import com.example.planner.ui.menu.MainMenu
+import com.example.planner.ui.network.NetworkConnectivityReceiver
 import com.example.planner.ui.network.RestClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -28,9 +32,12 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private val TAG = "LogIn Activity"
     private val jobList = mutableListOf<Job>()
+    private lateinit var broadcastReceiver: BroadcastReceiver
 
     companion object {
         val locations = mutableListOf<Location>()
+        var hasCityValues = false
+
     }
 
     private val locationNames =
@@ -41,6 +48,10 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Binds the broadcast receiver
+        broadcastReceiver = NetworkConnectivityReceiver()
+        broadcastIntent()
 
         auth = Firebase.auth
         val email = binding.username
@@ -77,7 +88,9 @@ class LoginActivity : AppCompatActivity() {
             loginUser(email, password)
         }
 
-        collectInitialData()
+        if (!hasCityValues) {
+            collectInitialData()
+        }
     }
 
     /**
@@ -149,5 +162,17 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
+
+        hasCityValues = true
+    }
+
+    // Used to bind and unbind the broadcast receiver
+    private fun broadcastIntent() {
+        registerReceiver(broadcastReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(broadcastReceiver)
     }
 }
