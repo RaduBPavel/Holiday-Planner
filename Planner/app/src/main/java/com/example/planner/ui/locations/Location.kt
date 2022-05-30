@@ -9,6 +9,7 @@ import kotlinx.coroutines.withContext
 
 data class Location(
     val name: String,
+    val subscribers: List<String>
 ) {
     var temperature: Double = 0.0
     var airTemperature: Double = 0.0

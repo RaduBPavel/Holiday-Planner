@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.planner.R
 import com.example.planner.ui.locations.Location
 
-class ItemAdapter(private val context: Context, private val dataset: List<Location>)
+class ItemAdapter(private val context: Context, var dataset: List<Location>)
     : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {

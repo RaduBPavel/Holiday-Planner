@@ -14,6 +14,7 @@ import com.example.planner.ui.adapter.ItemAdapter
 import com.example.planner.ui.adapter.onItemClick
 import com.example.planner.ui.authentication.LoginActivity
 import com.example.planner.ui.authentication.LoginActivity.Companion.locations
+import com.example.planner.ui.locations.Location
 import com.example.planner.ui.locations.LocationFragment
 import com.example.planner.ui.network.NetworkConnectivityReceiver
 import com.example.planner.ui.network.RestClient
@@ -29,6 +30,7 @@ class MainMenu : AppCompatActivity() {
     private lateinit var binding: ActivityMenuBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var broadcastReceiver: BroadcastReceiver
+    private var subscriberCities = mutableListOf<Location>()
     private var fragmentOn: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +44,13 @@ class MainMenu : AppCompatActivity() {
 
         val user = auth.currentUser
         checkIfLoggedIn(user)
+
+        // Gets the list of subscribed cities
+        for (location in locations) {
+            if (user!!.email in location.subscribers) {
+                subscriberCities.add(location)
+            }
+        }
 
         // Binds the broadcast receiver
         broadcastReceiver = NetworkConnectivityReceiver()
@@ -75,7 +84,9 @@ class MainMenu : AppCompatActivity() {
 
         // Instantiates the recycler view and updates periodically
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-        recyclerView.adapter = ItemAdapter(this, LoginActivity.locations)
+        val allLocationsAdapter = ItemAdapter(this, LoginActivity.locations)
+        val subscribedLocationsAdapter = ItemAdapter(this, subscriberCities)
+        recyclerView.adapter = allLocationsAdapter
 
         updateItems(recyclerView)
 
@@ -115,6 +126,25 @@ class MainMenu : AppCompatActivity() {
 
                 fragmentOn = false
             }
+        }
+
+        // Binds the menu buttons
+        val mainMenuButton = binding.mainMenuButton
+        mainMenuButton.alpha = 1.0f
+
+        val myCitiesButton = binding.myCitiesButton
+        myCitiesButton.alpha = 0.5f
+
+        mainMenuButton.setOnClickListener {
+            recyclerView.swapAdapter(allLocationsAdapter, false)
+            mainMenuButton.alpha = 1.0f
+            myCitiesButton.alpha = 0.5f
+        }
+
+        myCitiesButton.setOnClickListener {
+            recyclerView.swapAdapter(subscribedLocationsAdapter, false)
+            mainMenuButton.alpha = 0.5f
+            myCitiesButton.alpha = 1.0f
         }
     }
 

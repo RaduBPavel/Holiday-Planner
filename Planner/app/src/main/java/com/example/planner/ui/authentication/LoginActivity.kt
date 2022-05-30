@@ -31,7 +31,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private val TAG = "LogIn Activity"
-    private val jobList = mutableListOf<Job>()
     private lateinit var broadcastReceiver: BroadcastReceiver
 
     companion object {
@@ -39,9 +38,6 @@ class LoginActivity : AppCompatActivity() {
         var hasCityValues = false
 
     }
-
-    private val locationNames =
-        listOf("Bucharest", "Athens", "Amsterdam", "Los Angeles", "Shanghai")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,7 +148,7 @@ class LoginActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
-                    locations.add(Location(document.getString("name")!!))
+                    locations.add(Location(document.getString("name")!!, document.get("subscribers") as List<String>))
                 }
 
                 locations.sortBy { it.name }
